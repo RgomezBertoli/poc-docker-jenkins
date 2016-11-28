@@ -1,0 +1,60 @@
+version: '2'
+
+services:
+    nodejs:
+        build: ./nodejs
+        container_name: 'NodeJS'
+        command: 'tail -f /dev/null'
+        ports:
+            - '9001:9001'
+        expose:
+            - '9001'
+        volumes:
+            - /home/env:/shared
+    jenkins:
+        image: jenkins
+        container_name: 'Jenkins'
+        links:
+            - robotframework:robotf
+            - nodejs:nodejs
+            - jmeter:meter
+        depends_on:
+            - robotframework
+            - nodejs
+            - jmeter
+            - sonarqube
+        ports:
+            - '8080:8080'
+        expose:
+            - '8080'
+        volumes:
+            - /home/env:/shared
+    sonarqube:
+        image: sonarqube
+        container_name: 'SonarQube'
+        ports:
+            - '9000:9000'
+        expose:
+            - '9000'
+        volumes:
+            - /home/env:/shared
+    robotframework:
+        build: ./robot-framework
+        container_name: 'RobotFwk'
+        ports:
+            - '9002:9002'
+        expose:
+            - '9002'
+        volumes:
+            - /home/env:/shared
+        command: 'tail -f /dev/null'
+    jmeter:
+        build: ./jmeter
+        container_name: 'JMeter'
+        ports:
+            - '9003:9003'
+        expose:
+            - '9003'
+        command: 'tail -f /dev/null'
+        volumes:
+            - /home/env:/shared
